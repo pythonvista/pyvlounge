@@ -6,11 +6,9 @@
 
     <div class="grid px-5 gap-5 grid-cols-2 mt-1 place-items-center">
       <div class="w-full mb-4 col-span-2">
-        <p  class="pa-0 ma-0 text-2xl font-bold text-center">
+        <p class="pa-0 ma-0 text-2xl text-white font-bold text-center">
           Who's Authencating
         </p>
-        
-
       </div>
 
       <div
@@ -22,7 +20,7 @@
         >
           <img class="object-fit-cover" src="@/assets/img/admin.png" alt="" />
         </div>
-        <p class="ma-0 pa-0 text-2xl">Admin</p>
+        <p class="ma-0 pa-0 text-white text-2xl">Admin</p>
       </div>
       <div
         @click="setOpen(true)"
@@ -31,7 +29,7 @@
         <div class="user pa-3 bg-white w-40 h-40 shadow-md rounded-md">
           <img class="" src="@/assets/img/sales.png" alt="" />
         </div>
-        <p class="ma-0 pa-0 text-2xl">Sales Personel</p>
+        <p class="ma-0 pa-0 text-white text-2xl">Sales Personel</p>
       </div>
       <div
         @click="setOpen(true)"
@@ -40,11 +38,16 @@
         <div class="user pa-3 bg-white w-40 h-40 shadow-md rounded-md">
           <img class="" src="@/assets/img/sales.png" alt="" />
         </div>
-        <p class="ma-0 pa-0 text-2xl">Chef</p>
+        <p class="ma-0 pa-0 text-white text-2xl">Chef</p>
       </div>
     </div>
-<!-- 
-    <ion-modal :is-open="isOpen">
+
+    <q-dialog
+      v-model="isOpen"
+      :maximized="maximizedToggle"
+      transition-show="slide-up"
+      transition-hide="slide-down"
+    >
       <div class="h-screen bg-black">
         <div class="py-3 px-1 box_1 bg-black">
           <q-btn
@@ -59,24 +62,30 @@
             <img width="70" src="@/assets/img/logo_white.png" alt="" />
           </div>
         </div>
-        <div class="box_2 bg-white px-4 py-4 flex flex-col gap-9 justify-center items-center">
-            <p class="ma-0 pa-0 text-2xl font-bold text-black">Login</p>
+        <div
+          class="box_2 bg-white px-4 py-4 flex flex-col gap-9 justify-center items-center"
+        >
+          <p class="ma-0 pa-0 text-2xl font-bold text-black">Login</p>
 
-            <div class="w-full ">
-                <q-input outlined v-model="userid" label="User Id" />
-            </div>
+          <div class="w-full">
+            <q-input outlined v-model="userid" label="User Id" />
+          </div>
 
-            <div class="w-full ">
-                <q-input outlined v-model="passcode" type="password" label="Passcode" />
-            </div>
+          <div class="w-full">
+            <q-input
+              outlined
+              v-model="passcode"
+              type="password"
+              label="Passcode"
+            />
+          </div>
 
-            <div class="w-full">
-                <q-btn class="w-full" color="black" label="Login" />
-            </div>
-
+          <div class="w-full">
+            <q-btn class="w-full" color="black" label="Login" />
+          </div>
         </div>
       </div>
-    </ion-modal> -->
+    </q-dialog>
   </div>
 </template>
 <script>
@@ -87,8 +96,10 @@ export default {
   data: () => ({
     vvv: 'hih',
     isOpen: false,
+    dialog: false,
+    maximizedToggle: true,
     userid: '',
-    passcode: ''
+    passcode: '',
   }),
   components: {},
   computed: {
