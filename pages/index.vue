@@ -1,14 +1,16 @@
 <template>
   <div class="wrap h-screen overflow-hidden bg-black">
-    <div class="logo w-full px-2 py-4 flex justify-center items-center">
+    <div class="logo w-full px-2 py-2 flex justify-center items-center">
       <img width="150" src="@/assets/img/logo_white.png" alt="" />
     </div>
 
-    <div class="grid px-5 gap-6 grid-cols-2 mt-3 place-items-center">
-      <div class="w-full mb-6 col-span-2">
-        <p class="pa-0 ma-0 text-2xl font-bold text-center">
+    <div class="grid px-5 gap-5 grid-cols-2 mt-1 place-items-center">
+      <div class="w-full mb-4 col-span-2">
+        <p  class="pa-0 ma-0 text-2xl font-bold text-center">
           Who's Authencating
         </p>
+        
+
       </div>
 
       <div
@@ -41,7 +43,7 @@
         <p class="ma-0 pa-0 text-2xl">Chef</p>
       </div>
     </div>
-
+<!-- 
     <ion-modal :is-open="isOpen">
       <div class="h-screen bg-black">
         <div class="py-3 px-1 box_1 bg-black">
@@ -74,7 +76,7 @@
 
         </div>
       </div>
-    </ion-modal>
+    </ion-modal> -->
   </div>
 </template>
 <script>

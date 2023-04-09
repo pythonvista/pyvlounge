@@ -23,6 +23,6 @@ export default defineNuxtConfig({
         ]
     }
   },
-  modules: ['@nuxtjs/tailwindcss','nuxt-security', 'nuxt-swiper', 'nuxt-quasar-ui', '@nuxtjs/ionic','@pinia/nuxt'],
+  modules: ['@nuxtjs/tailwindcss','nuxt-security', 'nuxt-swiper', 'nuxt-quasar-ui','@pinia/nuxt'],
   quasar: { /* */ }
 });
