@@ -1,0 +1,29 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxtjs/ionic": "^0.10.0",
+    "@nuxtjs/tailwindcss": "^6.6.5",
+    "nuxt": "^3.3.3",
+    "nuxt-quasar-ui": "^1.6.0",
+    "nuxt-security": "^0.13.0"
+  },
+  "overrides": {
+    "vue": "latest"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.4.8",
+    "@quasar/extras": "^1.16.2",
+    "nuxt-swiper": "^1.1.0",
+    "pinia": "^2.0.34",
+    "quasar": "^2.11.10",
+    "vuex": "^4.0.2"
+  }
+}
