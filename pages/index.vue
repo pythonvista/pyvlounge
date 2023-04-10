@@ -141,15 +141,22 @@ export default {
       return false;
     },
   },
-
-  methods: {
-    setOpen(isOpen) {
-      const nuxtApp = useNuxtApp();
-const auth = nuxtApp.$authfunc.UserState();
+  created(){
+    const nuxtApp = useNuxtApp();
+      const auth = nuxtApp.$authfunc.UserState();
       if (auth.currentUser) {
         const uid = auth.currentUser.uid;
         store.SetActiveUser(uid, true);
-        console.log(uid);
+      }
+  },
+  methods: {
+    setOpen(isOpen) {
+      const nuxtApp = useNuxtApp();
+      const auth = nuxtApp.$authfunc.UserState();
+      if (auth.currentUser) {
+        const uid = auth.currentUser.uid;
+        store.SetActiveUser(uid, true);
+
         this.$router.push('/dashboard');
       } else {
         this.isOpen = isOpen;
@@ -171,9 +178,7 @@ const auth = nuxtApp.$authfunc.UserState();
     },
   },
 
-  setup() {
-  
-  },
+  setup() {},
 };
 </script>
 

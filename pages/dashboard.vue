@@ -2,8 +2,18 @@
   <div class="wrap h-screen overflow-hidden bg-white">
     <div class="grid px-5 gap-5 grid-cols-2 mt-6 place-items-center">
       <div class="w-full relative mb-4 col-span-2">
-        <p class="pa-0 ma-0 text-2xl text-black font-bold text-center">
-          Dashboard
+        <q-btn
+        class="absolute top-0 text-white left-0"
+            size="10px"
+           :to="{path:'/'}"
+            color="transparent"
+            round
+            text-color="black"
+            icon="home"
+          />
+        <p class="pa-0 ma-0 text-2xl capitalize text-black font-bold text-center">
+         {{ userData ? userData.accountType : '' }}  Dashboard 
+         <br> <span class="font-italic text-sm texx-black ">{{ userData ? userData.fullname : '' }}</span>
         </p>
 
         <q-btn
@@ -163,6 +173,7 @@ export default {
     userid: '',
     passcode: '',
     loading: false,
+    userData: {}
   }),
   components: {},
   computed: {
@@ -182,6 +193,17 @@ export default {
 
       return false;
     },
+  },
+  created(){
+    const nuxtApp = useNuxtApp();
+    const auth = nuxtApp.$authfunc.UserState();
+    if (auth.currentUser) {
+      const uid = auth.currentUser.uid;
+      store.SetActiveUser(uid, true);
+    }else{
+      this.$router.push('/')
+    }
+    this.GetUser()
   },
   methods: {
     setOpen(isOpen) {
@@ -220,6 +242,22 @@ export default {
         ShowSnack(`${err.message}`, 'negative');
       }
     },
+
+    async GetUser(){
+      try{
+        const nuxtApp = useNuxtApp();
+        const crud = nuxtApp.$crud;
+       const doc = await crud.getSingleDoc('USERS', store.activeUser)
+
+       this.userData = {...doc.data(), id: doc.uid} 
+       console.log(this.userData)
+
+      }catch(err){
+        console.log(err)
+      }
+
+    },
+    
   },
   setup() {
    
