@@ -90,7 +90,7 @@
           </div>
 
           <div class="w-full">
-                  <q-btn
+            <q-btn
               label="Login"
               class="w-full"
               :disable="!IsValid"
@@ -112,6 +112,8 @@
 import { useLoungeStore } from '@/store/index';
 
 const store = useLoungeStore();
+const nuxtApp = useNuxtApp();
+const auth = nuxtApp.$authfunc.UserState();
 export default {
   data: () => ({
     vvv: 'hih',
@@ -126,17 +128,7 @@ export default {
     loading: false,
   }),
   components: {},
-  beforeMount(){
-    const nuxtApp = useNuxtApp();
-   const auth = nuxtApp.$authfunc.UserState()
-   if(auth.currentUser){
-    const uid = auth.currentUser.uid
-    store.SetActiveUser(uid, true)
-    console.log(uid)
-    this.$router.push('/dashboard')
-   }
-    
-  },
+
   computed: {
     accountType() {
       return store.accountType;
@@ -152,8 +144,15 @@ export default {
   },
 
   methods: {
-    async setOpen(isOpen) {
-      this.isOpen = isOpen;
+    setOpen(isOpen) {
+      if (auth.currentUser) {
+        const uid = auth.currentUser.uid;
+        store.SetActiveUser(uid, true);
+        console.log(uid);
+        this.$router.push('/dashboard');
+      } else {
+        this.isOpen = isOpen;
+      }
     },
 
     async Login() {
