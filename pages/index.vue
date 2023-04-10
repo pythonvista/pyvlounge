@@ -16,29 +16,38 @@
         class="flex flex-col justify-center items-center gap-2"
       >
         <div
-          class="user pa-3 flex justify-center items-center overflow-hidden bg-white w-40 h-40 shadow-md rounded-md"
+          class="user pa-3 flex justify-center items-center overflow-hidden bg-white w-32 h-32 shadow-md rounded-md"
         >
-          <img class="object-fit-cover" src="@/assets/img/admin.png" alt="" />
+          <img
+            width="100"
+            class="object-fit-cover"
+            src="@/assets/img/admin.png"
+            alt=""
+          />
         </div>
-        <p class="ma-0 pa-0 text-white text-2xl">Admin</p>
+        <p class="ma-0 pa-0 text-white text-xl">Admin</p>
       </div>
       <div
         @click="setOpen(true)"
         class="flex flex-col justify-center items-center gap-2"
       >
-        <div class="user pa-3 bg-white w-40 h-40 shadow-md rounded-md">
-          <img class="" src="@/assets/img/sales.png" alt="" />
+        <div
+          class="user pa-3 bg-white flex justify-center items-center w-32 h-32 shadow-md rounded-md"
+        >
+          <img width="100" class="" src="@/assets/img/sales.png" alt="" />
         </div>
-        <p class="ma-0 pa-0 text-white text-2xl">Sales Personel</p>
+        <p class="ma-0 pa-0 text-white text-xl">Sales Personel</p>
       </div>
       <div
         @click="setOpen(true)"
         class="flex flex-col justify-center items-center gap-2"
       >
-        <div class="user pa-3 bg-white w-40 h-40 shadow-md rounded-md">
-          <img class="" src="@/assets/img/sales.png" alt="" />
+        <div
+          class="user pa-3 flex justify-center items-center bg-white w-32 h-32 shadow-md rounded-md"
+        >
+          <img width="100" class="" src="@/assets/img/sales.png" alt="" />
         </div>
-        <p class="ma-0 pa-0 text-white text-2xl">Chef</p>
+        <p class="ma-0 pa-0 text-white text-xl">Chef</p>
       </div>
     </div>
 
@@ -68,7 +77,7 @@
           <p class="ma-0 pa-0 text-2xl font-bold text-black">Login</p>
 
           <div class="w-full">
-            <q-input outlined v-model="userid" label="User Id" />
+            <q-input outlined v-model="userid" label="User Email" />
           </div>
 
           <div class="w-full">
@@ -81,7 +90,18 @@
           </div>
 
           <div class="w-full">
-            <q-btn class="w-full" color="black" label="Login" />
+                  <q-btn
+              label="Login"
+              class="w-full"
+              :disable="!IsValid"
+              :loading="loading"
+              color="black"
+              @click="Login"
+            >
+              <template v-slot:loading>
+                <q-spinner-facebook />
+              </template>
+            </q-btn>
           </div>
         </div>
       </div>
@@ -96,44 +116,65 @@ export default {
   data: () => ({
     vvv: 'hih',
     isOpen: false,
+    fullname: '',
+    accounttype: '',
+    confirmpasscode: '',
     dialog: false,
     maximizedToggle: true,
     userid: '',
     passcode: '',
+    loading: false,
   }),
   components: {},
+  beforeMount(){
+    const nuxtApp = useNuxtApp();
+   const auth = nuxtApp.$authfunc.UserState()
+   if(auth.currentUser){
+    const uid = auth.currentUser.uid
+    store.SetActiveUser(uid, true)
+    console.log(uid)
+    this.$router.push('/dashboard')
+   }
+    
+  },
   computed: {
     accountType() {
       return store.accountType;
     },
-  },
-  methods: {
-    setOpen(isOpen) {
-      this.isOpen = isOpen;
+
+    IsValid() {
+      if (this.userid && this.passcode) {
+        return true;
+      }
+
+      return false;
     },
   },
+
+  methods: {
+    async setOpen(isOpen) {
+      this.isOpen = isOpen;
+    },
+
+    async Login() {
+      try {
+        this.loading = true;
+        const nuxtApp = useNuxtApp();
+        await nuxtApp.$authfunc.login(this.userid, this.passcode);
+        this.loading = false;
+        ShowSnack('Logged In Successfully', 'positive');
+        this.$router.push('/dashboard');
+      } catch (err) {
+        this.loading = false;
+        ShowSnack(err.message, 'negative');
+      }
+    },
+  },
+
   setup() {
-    const bar = ref(null);
-
-    // we manually trigger it (this is not needed if we
-    // don't skip Ajax calls hijacking)
-    function trigger() {
-      console.log(bar);
-      const barRef = bar.value;
-      barRef.start();
-
-      setTimeout(() => {
-        const barRef = bar.value;
-        if (barRef) {
-          barRef.stop();
-        }
-      }, Math.random() * 3000 + 1000);
-    }
-
-    return {
-      bar,
-      trigger,
-    };
+    definePageMeta({
+      middleware: ['noauth'],
+    });
   },
 };
 </script>

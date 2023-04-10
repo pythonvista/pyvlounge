@@ -1,15 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  routeRules: {
-    '/': {
-      security: {
-        rateLimiter: {
-          tokensPerInterval: 200,
-          interval: 'hour',
-        },
-      },
-    },
-  },
+  
   app:{
     head:{
         title: 'Lounge Management System',
@@ -23,6 +14,20 @@ export default defineNuxtConfig({
         ]
     }
   },
+ 
+  runtimeConfig: {
+    FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
+    public:{
+      FIREBASE_API_KEY: process.env.FIREBASE_API_KEY
+    },
+   
+   
+    
+  },
   modules: ['@nuxtjs/tailwindcss','nuxt-security', 'nuxt-swiper', 'nuxt-quasar-ui','@pinia/nuxt'],
-  quasar: { /* */ }
+  quasar: {
+    plugins:['Notify', 'Dialog']
+  },
+ 
+  
 });

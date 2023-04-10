@@ -5,9 +5,22 @@ export const useLoungeStore = defineStore({
   state: () => {
     return {
       accountType: ['admin', 'chef', 'sales'],
+      activeUser: ''
     }
   },
-  actions: {},
+  actions: {
+    SetActiveUser(id, set){
+     let name='activeUser'
+      if(set){
+        this.activeUser = id
+      
+
+      }else{
+        this.activeUser =''
+      }
+
+    }
+  },
   getters: {
     // filtersList: state => state.filtersList,
   },
