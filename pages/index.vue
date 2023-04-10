@@ -171,9 +171,7 @@ export default {
   },
 
   setup() {
-    definePageMeta({
-      middleware: ['noauth'],
-    });
+  
   },
 };
 </script>
