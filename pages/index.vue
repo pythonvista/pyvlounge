@@ -112,8 +112,7 @@
 import { useLoungeStore } from '@/store/index';
 
 const store = useLoungeStore();
-const nuxtApp = useNuxtApp();
-const auth = nuxtApp.$authfunc.UserState();
+
 export default {
   data: () => ({
     vvv: 'hih',
@@ -145,6 +144,8 @@ export default {
 
   methods: {
     setOpen(isOpen) {
+      const nuxtApp = useNuxtApp();
+const auth = nuxtApp.$authfunc.UserState();
       if (auth.currentUser) {
         const uid = auth.currentUser.uid;
         store.SetActiveUser(uid, true);
