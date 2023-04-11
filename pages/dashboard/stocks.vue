@@ -146,18 +146,45 @@
               label="Edit"
               color="blue"
               icon="edit"
+              :disable="restrict"
               @click="EditStock"
             />
 
             <q-btn
               size="15px"
               label="Delete"
-              :loading="loading"
+              :disable="restrict"
               color="red"
               icon="delete"
               @click="ShowPrompt(`Stock Item ${stock.name}`, DeleteStock)"
             />
-            <q-btn size="15px" label="Stock Up" color="green" icon="add" />
+            <q-btn
+            :disable="restrict"
+              size="15px"
+              label="Top up Qty"
+              :loading="loading2"
+              @click="
+                OpenPrompt('What Quantity do you want to add', 'add', StockUp)
+              "
+              color="green"
+              icon="add"
+            />
+
+            <q-btn
+              size="15px"
+              :disable="restrict"
+              :loading="loading3"
+              label="Deduct Qty"
+              @click="
+                OpenPrompt(
+                  'What Quantity do you want to remove',
+                  'remove',
+                  StockUp
+                )
+              "
+              color="red"
+              icon="remove"
+            />
           </div>
         </div>
         <div
@@ -168,13 +195,30 @@
           </p>
 
           <div class="grid w-full grid-cols-1 gap-2">
-
             <div
               v-for="(st, i) in currStockHistory"
               :key="i"
-              class="w-full p-3 border-b-2 border-solid text-black border-gray-700"
+              class="w-full flex justify-between items-center p-3 border-b-2 border-solid text-black border-gray-700"
             >
-              hi {{ { ...st } }}
+              <p class="text-xs">Ref: {{ st.docid }}</p>
+
+              <p
+                :class="{
+                  'text-red-500': !st.isTop,
+                  'text-green-500': st.isTop,
+                }"
+              >
+                {{ st.isTop ? 'Stock Toped Up' : 'Stock Deducted' }}
+              </p>
+
+              <p
+                :class="{
+                  'text-red-500': !st.isTop,
+                  'text-green-500': st.isTop,
+                }"
+              >
+                {{ st.isTop ? `+ ${st.qty}` : `- ${st.qty}` }}
+              </p>
             </div>
           </div>
         </div>
@@ -237,7 +281,7 @@
           <div class="w-full">
             <q-input
               outlined
-              v-model="dform.totalStockPrice"
+              v-model="totalStockPrice"
               type="number"
               label="Total Cost Price"
             />
@@ -291,20 +335,22 @@ export default {
     isOpen: false,
     dialog: false,
     view: false,
+    restrict: false,
     viewstock: false,
     maximizedToggle: true,
     loading: false,
+    loading2: false,
+    loading3: false,
     stockid: '',
     stocks: [],
     stock: {},
-    currStockHistory:[],
+    currStockHistory: [],
     dform: {
       name: '',
       stocktype: '',
       qty: '',
       stockSPrice1: '',
       stockCPrice1: '',
-      totalStockPrice: '',
     },
   }),
   methods: {
@@ -313,7 +359,6 @@ export default {
       try {
         const doc = await crud.getAllDoc('STOCKS');
         this.stocks = doc;
-        console.log(this.stocks);
       } catch (err) {
         console.log(err);
         ShowSnack(err.msg, 'negative');
@@ -324,7 +369,7 @@ export default {
       this.view = true;
       this.isOpen = true;
       this.stockid = stock.docid;
-      this.StockHistory(stock.docid)
+      this.StockHistory(stock.docid);
     },
     OpenRegister() {
       this.view = false;
@@ -341,6 +386,7 @@ export default {
         this.loading = true;
         await crud.addDocWithId('STOCKS', ref, {
           ...this.dform,
+          totalStockPrice: this.totalStockPrice,
           addedBy: { name: this.userData.fullname, userId: this.userData.id },
         });
         await crud.addDocWithoutId('STOCKSTOPUP', {
@@ -349,6 +395,7 @@ export default {
           qty: this.dform.qty,
           newQty: this.dform.qty + 0,
           stockid: ref,
+          isTop: true,
           addedBy: { name: this.userData.fullname, userId: this.userData.id },
         });
 
@@ -358,7 +405,6 @@ export default {
         this.loading = false;
         this.isOpen = false;
       } catch (err) {
-        console.log(err);
         this.loading = false;
         ShowSnack(err.msg, 'negative');
       }
@@ -369,11 +415,82 @@ export default {
       this.viewstock = true;
       this.dform = this.stock;
     },
+    async StockUp(data, type) {
+      try {
+        this.restrict = true
+        const qty = parseInt(data);
+        if (type == 'add') {
+          if (qty != 0) {
+            this.loading2 = true
+            let newqty = parseInt(this.stock.qty) + qty;
+            await crud.updateDocument('STOCKS', this.stock.docid, {
+              qty: newqty,
+              totalStockPrice: this.totalStockPrice,
+            });
+            await crud.addDocWithoutId('STOCKSTOPUP', {
+              name: this.stock.name,
+              prevQty: this.stock.qty,
+              qty: qty,
+              newQty: newqty,
+              stockid: this.stock.docid,
+              isTop: true,
+              addedBy: {
+                name: this.userData.fullname,
+                userId: this.userData.id,
+              },
+            });
+            
+            this.loading2 = false;
+            ShowSnack('Stock Top Up Successfully', 'positive');
+          } else {
+            throw { message: 'You cannot add Qty less than 0' };
+          }
+        }
+        if (type == 'remove') {
+          this.loading3 = true
+          if (qty <= this.stock.qty && qty != 0) {
+            let newqty = this.stock.qty - qty;
+            await crud.updateDocument('STOCKS', this.stock.docid, {
+              qty: newqty,
+              totalStockPrice: this.totalStockPrice,
+            });
+            await crud.addDocWithoutId('STOCKSTOPUP', {
+              name: this.stock.name,
+              prevQty: this.stock.qty,
+              qty: qty,
+              newQty: newqty,
+              stockid: this.stock.docid,
+              isTop: false,
+              addedBy: {
+                name: this.userData.fullname,
+                userId: this.userData.id,
+              },
+            });
+           
+            this.loading3 = false;
+            ShowSnack('Stock Deducted Successfully', 'positive');
+          } else {
+            throw { message: 'You cannot remove more than the available qty' };
+          }
 
+          await this.GetStocks();
+          await this.StockHistory(this.stock.docid)
+          this.restrict = false
+        }
+      } catch (err) {
+        this.loading2 = false
+        this.loading3 = false
+        this.restrict =false
+        ShowSnack(err.message, 'negative');
+      }
+    },
     async UpdateStock() {
       try {
         this.loading = true;
-        await crud.updateDocument('STOCKS', this.stock.docid, this.dform);
+        await crud.updateDocument('STOCKS', this.stock.docid, {
+          ...this.dform,
+          totalStockPrice: this.totalStockPrice,
+        });
         ShowSnack('Stock Updated Successfully', 'positive');
         this.loading = false;
         this.view = true;
@@ -402,11 +519,14 @@ export default {
     },
 
     async StockHistory(id) {
-      this.currStockHistory = []
+      this.currStockHistory = [];
       try {
-        console.log(id);
         let data = [];
-        const docs = await crud.getAllQueryDoc('STOCKSTOPUP','stockid',id,'asc'
+        const docs = await crud.getAllQueryDoc(
+          'STOCKSTOPUP',
+          'stockid',
+          id,
+          'desc'
         );
         data = [...docs];
         this.currStockHistory = data;
@@ -417,14 +537,16 @@ export default {
   },
   components: {},
   computed: {
+    totalStockPrice() {
+      return this.dform.stockCPrice1 * this.dform.qty;
+    },
     valid() {
       if (
         this.dform.name &&
         this.dform.stocktype &&
         this.dform.qty &&
         this.dform.stockSPrice1 &&
-        this.dform.stockCPrice1 &&
-        this.dform.totalStockPrice
+        this.dform.stockCPrice1
       ) {
         return true;
       }
@@ -437,8 +559,7 @@ export default {
         this.dform.name &&
         this.dform.stocktype &&
         this.dform.stockSPrice1 &&
-        this.dform.stockCPrice1 &&
-        this.dform.totalStockPrice
+        this.dform.stockCPrice1
       ) {
         return true;
       }

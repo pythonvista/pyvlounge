@@ -18,15 +18,40 @@ export const ShowPrompt = (message, success) => {
     persistent: true,
   })
     .onOk(() => {
-      success()
+      success();
     })
     .onOk(() => {
       // console.log('>>>> second OK catcher')
       console.log('working om 2');
     })
     .onCancel(() => {
-      ShowSnack("Process Aborted", 'negative')
+      ShowSnack('Process Aborted', 'negative');
+    })
+    .onDismiss(() => {});
+};
+
+export const OpenPrompt = (message, type, success) => {
+  Dialog.create({
+    title: 'Prompt',
+    message: message,
+    prompt: {
+      model: '',
+      type: 'text', // optional
+    },
+    cancel: true,
+    persistent: true,
+  })
+    .onOk((data) => {
+      console.log(data)
+      success(data, type)
+      // console.log('>>>> OK, received', data)
+    })
+    .onCancel(() => {
+      // console.log('>>>> Cancel')
+      ShowSnack('Process Aborted', 'negative');
+
     })
     .onDismiss(() => {
+      // console.log('I am triggered on both OK and Cancel')
     });
 };
