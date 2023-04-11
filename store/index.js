@@ -5,7 +5,8 @@ export const useLoungeStore = defineStore({
   state: () => {
     return {
       accountType: ['admin', 'chef', 'sales'],
-      activeUser: ''
+      activeUser: '',
+      userData: {}
     }
   },
   actions: {
@@ -19,6 +20,10 @@ export const useLoungeStore = defineStore({
         this.activeUser =''
       }
 
+    },
+
+    SetUserData(user){
+      this.userData = user
     }
   },
   getters: {

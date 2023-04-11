@@ -141,13 +141,13 @@ export default {
       return false;
     },
   },
-  created(){
+  created() {
     const nuxtApp = useNuxtApp();
-      const auth = nuxtApp.$authfunc.UserState();
-      if (auth.currentUser) {
-        const uid = auth.currentUser.uid;
-        store.SetActiveUser(uid, true);
-      }
+    const auth = nuxtApp.$authfunc.UserState();
+    if (auth.currentUser) {
+      const uid = auth.currentUser.uid;
+      store.SetActiveUser(uid, true);
+    }
   },
   methods: {
     setOpen(isOpen) {

@@ -117,13 +117,19 @@ export default defineNuxtPlugin((nuxtApp) => {
       const q = query(collRef, where(where1, '==', where2));
       return q;
     };
-    (this.getAllQueryDoc = (dbname, where1, where2, sort = '') => {
+    (this.getAllQueryDoc = async (dbname, where1, where2, sort = '') => {
+      let docs = [];
       const q = query(
         collection(db, dbname),
         where(where1, '==', where2),
         orderBy('CreatedAt', sort)
       );
-      return q;
+      const querySnapshot =  await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        docs.push({ ...doc.data(), docid: doc.id });
+      });
+
+      return docs;
     }),
       (this.getAllDoc = async (dbname, sort = '', uid = '') => {
         let docs = [];

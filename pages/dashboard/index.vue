@@ -3,40 +3,42 @@
     <div class="grid px-5 gap-5 grid-cols-2 mt-6 place-items-center">
       <div class="w-full relative mb-4 col-span-2">
         <q-btn
-        class="absolute top-0 text-white left-0"
-            size="10px"
-           :to="{path:'/'}"
-            color="transparent"
-            round
-            text-color="black"
-            icon="home"
-          />
-        <p class="pa-0 ma-0 text-2xl capitalize text-black font-bold text-center">
-         {{ userData ? userData.accountType : '' }}  Dashboard 
-         <br> <span class="font-italic text-sm texx-black ">{{ userData ? userData.fullname : '' }}</span>
+          class="absolute top-0 text-white left-0"
+          size="10px"
+          :to="{ path: '/' }"
+          color="transparent"
+          round
+          text-color="black"
+          icon="home"
+        />
+        <p
+          class="pa-0 ma-0 text-2xl capitalize text-black font-bold text-center"
+        >
+          {{ userData ? userData.accountType : '' }} Dashboard <br />
+          <span class="font-italic text-sm texx-black">{{
+            userData ? userData.fullname : ''
+          }}</span>
         </p>
 
         <q-btn
-        class="absolute top-0 text-white right-0"
-            size="10px"
-           @click="SignOut"
-            color="transparent"
-            round
-            text-color="black"
-            icon="logout"
-          />
+          class="absolute top-0 text-white right-0"
+          size="10px"
+          @click="SignOut"
+          color="transparent"
+          round
+          text-color="black"
+          icon="logout"
+        />
       </div>
 
-      <div class="flex flex-col justify-center items-center gap-2">
+      <div
+        @click="$router.push({ path: '/dashboard/stocks' })"
+        class="flex flex-col justify-center cursor-pointer items-center gap-2"
+      >
         <div
-          class="user pa-3 flex justify-center items-center overflow-hidden bg-black w-32 h-32 shadow-md rounded-md"
+          class="user pa-3 flex justify-center items-center overflow-hidden bg-slate-100 w-32 h-32 shadow-lg rounded-md"
         >
-          <img
-            width="100"
-            class="object-fit-cover"
-            src="@/assets/img/admin.png"
-            alt=""
-          />
+          <img class="" src="@/assets/img/stocks.png" alt="" />
         </div>
         <p class="ma-0 pa-0 text-black text-xl">Stocks</p>
       </div>
@@ -45,7 +47,7 @@
         class="flex flex-col justify-center items-center gap-2"
       >
         <div
-          class="user pa-3 bg-black flex justify-center items-center w-32 h-32 shadow-md rounded-md"
+          class="user pa-3 bg-slate-100 w-32 h-32 shadow-lg rounded-md flex justify-center items-center"
         >
           <img width="100" class="" src="@/assets/img/sales.png" alt="" />
         </div>
@@ -53,26 +55,26 @@
       </div>
       <div class="flex flex-col justify-center items-center gap-2">
         <div
-          class="user pa-3 flex justify-center items-center bg-black w-32 h-32 shadow-md rounded-md"
+          class="user pa-3 flex justify-center items-center bg-slate-100 w-32 h-32 shadow-lg rounded-md"
         >
-          <img width="100" class="" src="@/assets/img/sales.png" alt="" />
+          <img class="" src="@/assets/img/order.png" alt="" />
         </div>
         <p class="ma-0 pa-0 text-black text-xl">Place Order</p>
       </div>
 
       <div class="flex flex-col justify-center items-center gap-2">
         <div
-          class="user pa-3 flex justify-center items-center bg-black w-32 h-32 shadow-md rounded-md"
+          class="user pa-3 flex justify-center items-center bg-slate-100 w-32 h-32 shadow-lg rounded-md"
         >
-          <img width="100" class="" src="@/assets/img/sales.png" alt="" />
+          <img class="" src="@/assets/img/orders.png" alt="" />
         </div>
         <p class="ma-0 pa-0 text-black text-xl">All Orders</p>
       </div>
       <div class="flex flex-col justify-center items-center gap-2">
         <div
-          class="user pa-3 flex justify-center items-center bg-black w-32 h-32 shadow-md rounded-md"
+          class="user pa-3 flex justify-center items-center bg-slate-100 w-32 h-32 shadow-lg rounded-md"
         >
-          <img width="100" class="" src="@/assets/img/sales.png" alt="" />
+          <img class="" src="@/assets/img/trans.png" alt="" />
         </div>
         <p class="ma-0 pa-0 text-black text-xl">All Transactions</p>
       </div>
@@ -163,7 +165,6 @@ import { useLoungeStore } from '@/store/index';
 const store = useLoungeStore();
 export default {
   data: () => ({
-    vvv: 'hih',
     isOpen: false,
     fullname: '',
     accounttype: '',
@@ -173,10 +174,12 @@ export default {
     userid: '',
     passcode: '',
     loading: false,
-    userData: {}
   }),
   components: {},
   computed: {
+    userData(){
+      return  store.userData
+    },
     accountType() {
       return store.accountType;
     },
@@ -194,26 +197,18 @@ export default {
       return false;
     },
   },
-  created(){
-    const nuxtApp = useNuxtApp();
-    const auth = nuxtApp.$authfunc.UserState();
-    if (auth.currentUser) {
-      const uid = auth.currentUser.uid;
-      store.SetActiveUser(uid, true);
-    }else{
-      this.$router.push('/')
-    }
-    this.GetUser()
+  created() {
+  
   },
   methods: {
     setOpen(isOpen) {
       this.isOpen = isOpen;
     },
-   async SignOut(){
-    const nuxtApp = useNuxtApp();
+    async SignOut() {
+      const nuxtApp = useNuxtApp();
       const authfunc = nuxtApp.$authfunc;
-      await authfunc.signout()
-      this.$router.push('/')
+      await authfunc.signout();
+      this.$router.push('/');
     },
     async CreateUser() {
       this.loading = true;
@@ -242,25 +237,11 @@ export default {
         ShowSnack(`${err.message}`, 'negative');
       }
     },
-
-    async GetUser(){
-      try{
-        const nuxtApp = useNuxtApp();
-        const crud = nuxtApp.$crud;
-       const doc = await crud.getSingleDoc('USERS', store.activeUser)
-
-       this.userData = {...doc.data(), id: doc.uid} 
-       console.log(this.userData)
-
-      }catch(err){
-        console.log(err)
-      }
-
-    },
-    
   },
   setup() {
-   
+    definePageMeta({
+      layout: 'dashboard'
+    })
   },
 };
 </script>
