@@ -6,27 +6,29 @@ export const useLoungeStore = defineStore({
     return {
       accountType: ['admin', 'chef', 'sales'],
       activeUser: '',
-      userData: {}
-    }
+      userData: {},
+      routeState: '',
+    };
   },
   actions: {
-    SetActiveUser(id, set){
-     let name='activeUser'
-      if(set){
-        this.activeUser = id
-      
-
-      }else{
-        this.activeUser =''
+    SetActiveUser(id, set) {
+      let name = 'activeUser';
+      if (set) {
+        this.activeUser = id;
+      } else {
+        this.activeUser = '';
       }
-
     },
 
-    SetUserData(user){
-      this.userData = user
-    }
+    SetRouteState(name) {
+      this.routeState = name;
+    },
+
+    SetUserData(user) {
+      this.userData = user;
+    },
   },
   getters: {
     // filtersList: state => state.filtersList,
   },
-})
+});

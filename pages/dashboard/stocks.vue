@@ -1,33 +1,6 @@
 <template>
   <div class="wrap h-screen overflow-hidden bg-white">
     <div class="grid px-5 gap-5 grid-cols-2 mt-6 place-items-center">
-      <div class="w-full relative mb-4 col-span-2">
-        <q-btn
-          class="absolute top-0 text-white left-0"
-          size="10px"
-          :to="{ path: '/dashboard' }"
-          color="transparent"
-          round
-          text-color="black"
-          icon="arrow_left"
-        />
-        <p
-          class="pa-0 ma-0 text-2xl capitalize text-black font-bold text-center"
-        >
-          Stocks
-          <br />
-        </p>
-
-        <q-btn
-          class="absolute top-0 text-white right-0"
-          size="10px"
-          @click="SignOut"
-          color="transparent"
-          round
-          text-color="black"
-          icon="logout"
-        />
-      </div>
       <div class="w-full flex justify-center items-center col-span-2">
         <q-btn color="black" @click="OpenRegister" label="Add Stocks" />
       </div>
@@ -332,6 +305,7 @@ const store = useLoungeStore();
 export default {
   data: () => ({
     userData: {},
+    name: 'Stocks',
     isOpen: false,
     dialog: false,
     view: false,
@@ -577,6 +551,8 @@ export default {
     },
   },
   created() {
+    store.SetRouteState(this.name);
+
     nuxtApp = useNuxtApp();
     crud = nuxtApp.$crud;
     authfunc = nuxtApp.$authfunc;

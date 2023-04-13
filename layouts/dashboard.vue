@@ -1,10 +1,55 @@
 <template>
-  <div pa-5 bg-red>
+  <div class="p-5">
+    <div class="w-full relative col-span-2">
+      <q-btn
+        v-if="RouteState == 'dashboard'"
+        class="absolute top-0 text-white left-0"
+        size="10px"
+        :to="{ path: '/' }"
+        color="transparent"
+        round
+        text-color="black"
+        icon="home"
+      />
+      <q-btn
+        v-else
+        class="absolute top-0 text-white left-0"
+        size="10px"
+        @click="$router.go(-1)"
+        color="transparent"
+        round
+        text-color="black"
+        icon="arrow_left"
+      />
+      <p class="pa-0 ma-0 text-2xl capitalize text-black font-bold text-center">
+        {{ userData ? userData.accountType : '' }} Dashboard <br />
+        <span class="font-italic text-sm texx-black">{{
+          userData ? userData.fullname : ''
+        }}</span>
+      </p>
+
+      <p
+        v-if="RouteState != 'dashboard'"
+        class="text-2xl font-semibold font-serif underline text-center w-full"
+      >
+        {{ RouteState }}
+      </p>
+
+      <q-btn
+        class="absolute top-0 text-white right-0"
+        size="10px"
+        @click="SignOut"
+        color="transparent"
+        round
+        text-color="black"
+        icon="logout"
+      />
+    </div>
     <div
       v-if="loader"
       class="loader flex justify-center items-center absolute top-0 left-0 h-screen w-full"
     >
-      <img src="@/assets/img/loader.gif" alt="" />
+      <img width="100" src="@/assets/img/loader.gif" alt="" />
     </div>
     <div v-else class="">
       <slot />
@@ -33,6 +78,11 @@ export default {
       }
     });
   },
+  computed: {
+    RouteState() {
+      return store.routeState;
+    },
+  },
   methods: {
     async GetUser() {
       try {
@@ -49,6 +99,12 @@ export default {
           this.$router.push({ path: '/' });
         }
       }
+    },
+    async SignOut() {
+      const nuxtApp = useNuxtApp();
+      const authfunc = nuxtApp.$authfunc;
+      await authfunc.signout();
+      this.$router.push('/');
     },
   },
 };

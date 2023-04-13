@@ -3,9 +3,7 @@
     <p class="col-span-5 py-5 text-center text-2xl font-bold text-black">
       All Items
     </p>
-    <div
-      class="xs:col-span-5 md:col-span-3 m-2 p-4 grid grid-cols-4 gap-3 items-tray"
-    >
+    <div class="xs:col-span-5 md:col-span-3 m-2 p-4 grid grid-cols-2 gap-3">
       <div
         @click="AddItem(food)"
         v-for="(food, index) in foodList"
@@ -17,6 +15,11 @@
         >
           {{ food.name }}
         </p>
+        <p
+          class="ma-0 pa-0 text-xs text-center capitalize text-black font-light font-serif"
+        >
+          Qty: {{ food.qty }}
+        </p>
         <p class="ma-0 pa-o text-black font-mono text-sm">
           ₦{{ food.stockSPrice1 }}
         </p>
@@ -24,7 +27,7 @@
     </div>
 
     <q-dialog v-model="orderdialog" persistent max-width="400px">
-      <div class="bg-white pa-4 flex flex-col justify-center items-center">
+      <div class="bg-white p-4 flex flex-col justify-center items-center">
         <p class="ma-0 pa-0 text-lg font-bold font-cursive text-center">
           KSG Food and Lounge
         </p>
@@ -47,12 +50,7 @@
             </tr>
           </table>
         </div>
-        <!-- <div
-          class="border-solid w-full mt-3 border-b border-red-400 flex justify-between items-center"
-        >
-          <span class="ma-0 pa-0 text-blue-300">Total</span>
-          <span>₦ {{ Total }}</span>
-        </div> -->
+
         <div
           v-if="!viewmode"
           class="flex w-full mt-2 justify-between gap-3 items-center"
@@ -64,12 +62,18 @@
           <q-btn class="white--text" color="blue">Print</q-btn>
           <q-btn
             @click="updatedConfirm"
+            :loading="loadingc"
             class="white--text"
             color="green"
             v-if="currentInvoice.status == 'pending'"
             >Confirm Order</q-btn
           >
-          <q-btn @click="updatedPending" class="white--text" v-else color="blue"
+          <q-btn
+            @click="updatedPending"
+            :loading="loadingp"
+            class="white--text"
+            v-else
+            color="blue"
             >Pend Order</q-btn
           >
           <q-btn class="white--text" color="red" @click="CloseBtn">Close</q-btn>
@@ -81,10 +85,12 @@
       color="green"
       text-color="white"
       round
-      icon="add_shopping_cart"
+      :icon="invoceblock ? 'cancel' : 'add_shopping_cart'"
       @click="invoceblock = !invoceblock"
       class="fixed bottom-2 right-2 cart_btn"
-      ><q-badge color="red" floating>{{ orders.length }}</q-badge></q-btn
+      ><q-badge v-if="!invoceblock" color="red" floating>{{
+        orders.length
+      }}</q-badge></q-btn
     >
     <q-dialog
       v-model="invoceblock"
@@ -168,6 +174,7 @@
                 <q-btn
                   :disable="orders.length == 0"
                   @click="PlaceOrder"
+                  :loading="loading"
                   color="green"
                   small
                   label="Place Order"
@@ -176,6 +183,7 @@
                   :disable="orders.length == 0"
                   @click="PendOrder"
                   color="blue"
+                  :loading="loadingp"
                   small
                   label="Pend Order"
                 />
@@ -200,45 +208,43 @@
                   (v) => v.status == 'pending'
                 )"
                 :key="i"
-                class="flex w-full justify-between items-center hover:shadow-lg cursor-pointers pa-3 mb-3 shadow-sm rounded-md border-2 border-solid border-blue-400"
+                class="flex w-full justify-between items-center hover:shadow-lg cursor-pointers p-3 mb-3 shadow-sm rounded-md border-2 border-solid border-blue-400"
               >
                 <p class="ma-0 pa-0">
                   {{ invoice.ref }}
-                  <span
-                    :class="{
-                      colorgreen: invoice.status == 'confirmed',
-                      colorred: invoice.status == 'pending',
-                    }"
-                    class="px-2 py-1 rounded-sm"
-                    >{{ invoice.status }}</span
-                  >
                 </p>
-                <p class="ma-0 pa-0">{{ invoice.createdat }}</p>
+                <span
+                  :class="{
+                    colorgreen: invoice.status == 'confirmed',
+                    colorred: invoice.status == 'pending',
+                  }"
+                  class="px-2 py-1 rounded-sm"
+                  >{{ invoice.status }}</span
+                >
               </div>
             </div>
           </q-tab-panel>
           <q-tab-panel name="all">
             <div
-              class="current-invoice w-full px-3 my-3 relative overflow-y-scroll overflow-hidden"
+              class="w-full px-3 my-3 relative overflow-y-scroll overflow-hidden"
             >
               <div
                 @click="ViewOrder(invoice)"
                 v-for="(invoice, i) in invoices"
                 :key="i"
-                class="flex w-full justify-between items-center hover:shadow-lg cursor-pointer pa-3 mb-3 shadow-sm rounded-md border-2 border-solid border-blue-400"
+                class="flex w-full justify-between items-center hover:shadow-lg cursor-pointer p-3 mb-3 shadow-sm rounded-md border-2 border-solid border-blue-400"
               >
                 <p class="ma-0 pa-0">
                   {{ invoice.ref }}
-                  <span
-                    :class="{
-                      colorgreen: invoice.status == 'confirmed',
-                      colorred: invoice.status == 'pending',
-                    }"
-                    class="px-2 py-1 rounded-sm"
-                    >{{ invoice.status }}</span
-                  >
                 </p>
-                <p class="ma-0 pa-0">{{ invoice.createdat }}</p>
+                <span
+                  :class="{
+                    colorgreen: invoice.status == 'confirmed',
+                    colorred: invoice.status == 'pending',
+                  }"
+                  class="px-2 py-1 rounded-sm"
+                  >{{ invoice.status }}</span
+                >
               </div>
             </div>
           </q-tab-panel>
@@ -258,11 +264,15 @@ const store = useLoungeStore();
 export default {
   data: () => ({
     viewmode: false,
+    name: 'Place Order',
     foodList: [],
     maximizedToggle: true,
     orderdialog: false,
     invoceblock: false,
     orders: [],
+    loading: false,
+    loadingc: false,
+    loadingp: false,
     invoices: [],
     currentInvoice: {},
     printObj: {
@@ -274,7 +284,6 @@ export default {
   }),
   computed: {
     Total() {
-      console.log(this.orders);
       return this.orders.reduce(
         (accumulator, currentValue) =>
           accumulator + currentValue.price * currentValue.qty,
@@ -283,116 +292,109 @@ export default {
     },
   },
   created() {
+    store.SetRouteState(this.name);
     nuxtApp = useNuxtApp();
     crud = nuxtApp.$crud;
-
     authfunc = nuxtApp.$authfunc;
     this.userData = store.userData;
-
-    setTimeout(() => {
-      this.GetFoods();
-    }, 5000);
+    this.GetFoods();
   },
   methods: {
     async GetFoods() {
       try {
-        const res = await crud.getAllQueryDoc('STOCKS', 'stocktype', 'lounge');
+        const res = await crud.getAllQueryDoc(
+          'STOCKS',
+          'stocktype',
+          'lounge',
+          'asc'
+        );
         // const res = [];
         if (res) {
           this.foodList = [];
           this.foodList = res;
         }
+        this.GetInvoices();
       } catch (err) {
-        console.log(err);
         ShowSnack(err, 'negative');
       }
     },
     async GetInvoices() {
       try {
-        const res = await apiClient.get('/invoices');
-        if (res.data.success) {
-          this.invoices = [];
-          this.invoices = res.data.response;
-        }
-        if (res.data.err) {
-          throw res.data.err.sqlMessage;
-        }
-        console.log(res.data);
+        const res = await crud.getAllDoc('INVOICES');
+        this.invoices = res;
       } catch (err) {
-        console.log(err);
+        ShowSnack(err, 'negative');
       }
     },
     async PendOrder() {
+      this.loadingp = true;
       let ref = 'KSG' + Math.floor(Math.random() * 129483 + 292929);
       this.orders.ref = ref;
       try {
-        const res = await apiClient.post('/invoices', {
+        await crud.addDocWithId('INVOICES', ref, {
           ref: ref,
+          orders: this.orders,
           status: 'pending',
         });
-        console.log(res.data);
-        if (res.data.success) {
-          this.orders.forEach(async (v) => {
-            let data = {
-              refid: ref,
-              status: 'pending',
-              name: v.name,
-              price: v.price,
-              qty: v.qty,
-            };
-            const res2 = await apiClient.post('/items', data);
-            console.log(res2);
-          });
-
-          alert('Invoice Added to pending');
-          this.GetInvoices();
-          this.orders = [];
-        }
-        if (res.data.err) {
-          throw res.data.err.sqlMessage;
-        }
+        this.loadingp = false;
+        ShowSnack('Invoice Pending', 'positive');
+        this.orders = [];
+        this.invoceblock = false;
+        // this.GetInvoices();
+        this.GetFoods();
       } catch (err) {
-        console.log(err);
+        this.loadingp = false;
+        ShowSnack(err, 'negative');
       }
     },
     async PlaceOrder() {
+      this.loading = true;
       let ref = 'KSG' + Math.floor(Math.random() * 129483 + 292929);
       this.orders.ref = ref;
       try {
-        const res = await apiClient.post('/invoices', {
+        await crud.addDocWithId('INVOICES', ref, {
           ref: ref,
+          orders: this.orders,
           status: 'confirmed',
         });
-        console.log(res.data);
-        if (res.data.success) {
-          this.orders.forEach(async (v) => {
-            let data = {
-              refid: ref,
-              status: 'confirmed',
-              name: v.name,
-              price: v.price,
-              qty: v.qty,
-            };
-            const res2 = await apiClient.post('/items', data);
-            console.log(res2);
-          });
 
-          alert('Invoice Added');
-          this.GetInvoices();
-          this.orderdialog = true;
-        }
-        if (res.data.err) {
-          throw res.data.err.sqlMessage;
-        }
+        this.orders.forEach(async (v) => {
+          let newqty = parseInt(v.prevQty) - v.qty;
+          await crud.updateDocument('STOCKS', v.stockid, {
+            qty: newqty,
+          });
+          await crud.addDocWithoutId('STOCKSTOPUP', {
+            name: v.name,
+            prevQty: v.prevQty,
+            qty: v.qty,
+            newQty: newqty,
+            stockid: v.stockid,
+            isTop: false,
+            addedBy: {
+              name: this.userData.fullname,
+              userId: this.userData.id,
+            },
+          });
+        });
+        this.loading = false;
+        ShowSnack('Invoice Added', 'positive');
+        this.orders = [];
+        this.invoceblock = false;
+        // this.GetInvoices();
+        this.GetFoods();
       } catch (err) {
-        console.log(err);
+        this.loading = false;
+        ShowSnack(err, 'negative');
       }
     },
+
     AddItem(food) {
       let order = {
         qty: 1,
         name: food.name,
         price: parseInt(food.stockSPrice1),
+        stockid: food.docid,
+        prevQty: food.qty,
       };
 
       if (this.orders.length == 0) {
@@ -414,50 +416,76 @@ export default {
       let temp = this.orders.filter((item) => item.name == food.name);
       if (temp.length == 0) {
         this.orders.push(order);
-        console.log(this.orders);
         return;
       }
     },
     async updatedConfirm() {
+      this.loadingc = true;
       try {
-        this.currentInvoice.status = 'confirmed';
-        const res = await apiClient.put('/invoices', this.currentInvoice);
-        if (res.data.success) {
-          alert('Order Confirmed');
-          this.GetInvoices();
-        }
+        await crud.updateDocument('INVOICES', this.currentInvoice.ref, {
+          orders: this.orders,
+          status: 'confirmed',
+        });
+
+        this.orders.forEach(async (v) => {
+          let newqty = parseInt(v.prevQty) - v.qty;
+          await crud.updateDocument('STOCKS', v.stockid, {
+            qty: newqty,
+          });
+          await crud.addDocWithoutId('STOCKSTOPUP', {
+            name: v.name,
+            prevQty: v.prevQty,
+            qty: v.qty,
+            newQty: newqty,
+            stockid: v.stockid,
+            isTop: false,
+            addedBy: {
+              name: this.userData.fullname,
+              userId: this.userData.id,
+            },
+          });
+        });
+        this.loadingc = false;
+        ShowSnack('Invoice Confirmed', 'positive');
+        this.orders = [];
+        this.viewmode = false;
+        this.orderdialog = false;
+        this.currentInvoice = {};
+        this.GetInvoices();
+        this.GetFoods();
       } catch (err) {
-        console.log(err);
+        this.loadingc = false;
+        ShowSnack(err, 'negative');
       }
     },
     async updatedPending() {
+      this.loadingp = true;
       try {
-        this.currentInvoice.status = 'pending';
-        const res = await apiClient.put('/invoices', this.currentInvoice);
-        if (res.data.success) {
-          alert('Order Confirmed');
-          this.GetInvoices();
-        }
+        await crud.updateDocument('INVOICES', this.currentInvoice.ref, {
+          orders: this.orders,
+          status: 'pending',
+        });
+
+        ShowSnack('Invoice Pending', 'positive');
+        this.orders = [];
+        this.viewmode = false;
+        this.orderdialog = false;
+        this.currentInvoice = {};
+        this.loadingp = false;
+        this.GetInvoices();
+        this.GetFoods();
       } catch (err) {
-        console.log(err);
+        ShowSnack(err, 'negative');
       }
     },
     Delete(id) {
-      console.log(id);
       this.orders.splice(id, 1);
     },
-    async ViewOrder(invoice) {
+    ViewOrder(invoice) {
       this.viewmode = true;
+      this.orderdialog = true;
       this.currentInvoice = invoice;
-      try {
-        const res = await apiClient.get(`/items?refid=${invoice.ref}`);
-        if (res.data.success) {
-          this.orders = res.data.response;
-          this.orderdialog = true;
-        }
-      } catch (err) {
-        console.log(err);
-      }
+      this.orders = invoice.orders;
     },
     CloseBtn() {
       this.orderdialog = !this.orderdialog;

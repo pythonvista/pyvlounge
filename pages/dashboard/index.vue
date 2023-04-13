@@ -1,7 +1,7 @@
 <template>
   <div class="wrap h-screen overflow-hidden bg-white">
     <div class="grid px-5 gap-5 grid-cols-2 mt-6 place-items-center">
-      <div class="w-full relative mb-4 col-span-2">
+      <!-- <div class="w-full relative mb-4 col-span-2">
         <q-btn
           class="absolute top-0 text-white left-0"
           size="10px"
@@ -29,7 +29,7 @@
           text-color="black"
           icon="logout"
         />
-      </div>
+      </div> -->
 
       <div
         @click="$router.push({ path: '/dashboard/stocks' })"
@@ -168,6 +168,7 @@ import { useLoungeStore } from '@/store/index';
 const store = useLoungeStore();
 export default {
   data: () => ({
+    name: 'dashboard',
     isOpen: false,
     fullname: '',
     accounttype: '',
@@ -183,6 +184,7 @@ export default {
     userData() {
       return store.userData;
     },
+
     accountType() {
       return store.accountType;
     },
@@ -200,17 +202,14 @@ export default {
       return false;
     },
   },
-  created() {},
+  created() {
+    store.SetRouteState(this.name);
+  },
   methods: {
     setOpen(isOpen) {
       this.isOpen = isOpen;
     },
-    async SignOut() {
-      const nuxtApp = useNuxtApp();
-      const authfunc = nuxtApp.$authfunc;
-      await authfunc.signout();
-      this.$router.push('/');
-    },
+
     async CreateUser() {
       this.loading = true;
       const nuxtApp = useNuxtApp();
