@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/emeterrc/test.emeterr.com/
+    - /bin/cp -R * $DEPLOYPATH
