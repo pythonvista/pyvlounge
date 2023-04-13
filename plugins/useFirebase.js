@@ -27,7 +27,7 @@ import {
 } from 'firebase/firestore';
 
 export default defineNuxtPlugin((nuxtApp) => {
-    const config = useRuntimeConfig()
+  const config = useRuntimeConfig();
   const firebaseConfig = {
     apiKey: config.FIREBASE_API_KEY,
     authDomain: 'lounge-6d2dd.firebaseapp.com',
@@ -82,10 +82,9 @@ export default defineNuxtPlugin((nuxtApp) => {
       return data;
     };
 
-    this.UserState =  ()=>{
-
-     return auth
-    } 
+    this.UserState = () => {
+      return auth;
+    };
   }
 
   function CRUD() {
@@ -124,7 +123,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         where(where1, '==', where2),
         orderBy('CreatedAt', sort)
       );
-      const querySnapshot =  await getDocs(q);
+      const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
         docs.push({ ...doc.data(), docid: doc.id });
       });

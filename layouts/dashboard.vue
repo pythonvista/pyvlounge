@@ -25,10 +25,8 @@ export default {
   created() {
     const nuxtApp = useNuxtApp();
     const auth = nuxtApp.$authfunc.UserState();
-
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(user.uid);
         store.SetActiveUser(user.uid, true);
         this.loader = false;
         this.GetUser();

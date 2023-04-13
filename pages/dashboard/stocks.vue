@@ -159,7 +159,7 @@
               @click="ShowPrompt(`Stock Item ${stock.name}`, DeleteStock)"
             />
             <q-btn
-            :disable="restrict"
+              :disable="restrict"
               size="15px"
               label="Top up Qty"
               :loading="loading2"
@@ -417,11 +417,11 @@ export default {
     },
     async StockUp(data, type) {
       try {
-        this.restrict = true
+        this.restrict = true;
         const qty = parseInt(data);
         if (type == 'add') {
           if (qty != 0) {
-            this.loading2 = true
+            this.loading2 = true;
             let newqty = parseInt(this.stock.qty) + qty;
             await crud.updateDocument('STOCKS', this.stock.docid, {
               qty: newqty,
@@ -439,15 +439,16 @@ export default {
                 userId: this.userData.id,
               },
             });
-            
+
             this.loading2 = false;
+            this.restrict = false;
             ShowSnack('Stock Top Up Successfully', 'positive');
           } else {
             throw { message: 'You cannot add Qty less than 0' };
           }
         }
         if (type == 'remove') {
-          this.loading3 = true
+          this.loading3 = true;
           if (qty <= this.stock.qty && qty != 0) {
             let newqty = this.stock.qty - qty;
             await crud.updateDocument('STOCKS', this.stock.docid, {
@@ -466,7 +467,7 @@ export default {
                 userId: this.userData.id,
               },
             });
-           
+            this.restrict = false;
             this.loading3 = false;
             ShowSnack('Stock Deducted Successfully', 'positive');
           } else {
@@ -474,13 +475,13 @@ export default {
           }
 
           await this.GetStocks();
-          await this.StockHistory(this.stock.docid)
-          this.restrict = false
+          await this.StockHistory(this.stock.docid);
+          this.restrict = false;
         }
       } catch (err) {
-        this.loading2 = false
-        this.loading3 = false
-        this.restrict =false
+        this.loading2 = false;
+        this.loading3 = false;
+        this.restrict = false;
         ShowSnack(err.message, 'negative');
       }
     },

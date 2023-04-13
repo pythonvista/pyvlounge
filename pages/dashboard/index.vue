@@ -53,7 +53,10 @@
         </div>
         <p class="ma-0 pa-0 text-black text-xl">Add User</p>
       </div>
-      <div class="flex flex-col justify-center items-center gap-2">
+      <div
+        @click="$router.push({ path: '/dashboard/place-order' })"
+        class="flex flex-col justify-center items-center gap-2"
+      >
         <div
           class="user pa-3 flex justify-center items-center bg-slate-100 w-32 h-32 shadow-lg rounded-md"
         >
@@ -177,8 +180,8 @@ export default {
   }),
   components: {},
   computed: {
-    userData(){
-      return  store.userData
+    userData() {
+      return store.userData;
     },
     accountType() {
       return store.accountType;
@@ -197,9 +200,7 @@ export default {
       return false;
     },
   },
-  created() {
-  
-  },
+  created() {},
   methods: {
     setOpen(isOpen) {
       this.isOpen = isOpen;
@@ -240,8 +241,8 @@ export default {
   },
   setup() {
     definePageMeta({
-      layout: 'dashboard'
-    })
+      layout: 'dashboard',
+    });
   },
 };
 </script>
