@@ -304,7 +304,6 @@ let crud;
 const store = useLoungeStore();
 export default {
   data: () => ({
-    userData: {},
     name: 'Stocks',
     isOpen: false,
     dialog: false,
@@ -515,6 +514,9 @@ export default {
     totalStockPrice() {
       return this.dform.stockCPrice1 * this.dform.qty;
     },
+    userData() {
+      return store.userData;
+    },
     valid() {
       if (
         this.dform.name &&
@@ -556,7 +558,6 @@ export default {
     nuxtApp = useNuxtApp();
     crud = nuxtApp.$crud;
     authfunc = nuxtApp.$authfunc;
-    this.userData = store.userData;
     this.GetStocks();
   },
   setup() {

@@ -1,11 +1,11 @@
 <template>
   <div class="grid grid-cols-5">
     <p class="col-span-5 py-5 text-center text-2xl font-bold text-black">
-      All Items
+      All Kitchen Items
     </p>
     <div class="xs:col-span-5 md:col-span-3 m-2 p-4 grid grid-cols-2 gap-3">
       <div
-        @click="AddItem(food)"
+        @click="OpenBasketForm(food)"
         v-for="(food, index) in foodList"
         :key="index"
         class="items pa-5 rounded-sm item-cover shadow hover:shadow-lg cursor-pointer flex flex-col justify-center items-center"
@@ -32,21 +32,15 @@
           KSG Food and Lounge
         </p>
         <div id="printMe" class="w-full">
+          <p>This was prepared by {{ currentInvoice.addedBy.name }}</p>
           <table>
             <tr>
               <td>Item Name</td>
               <td>Item Qty</td>
-              <td>Price</td>
             </tr>
             <tr v-for="(item, i) in orders" :key="i">
               <td>{{ item.name }}</td>
               <td>{{ item.qty }}</td>
-              <td>₦{{ item.price }}</td>
-            </tr>
-            <tr>
-              <td class="text-red-600 bold">Total</td>
-              <td></td>
-              <td class="text-black font-bold">₦{{ Total }}</td>
             </tr>
           </table>
         </div>
@@ -81,13 +75,71 @@
       </div>
     </q-dialog>
 
+    <q-dialog v-model="oderform" persistent>
+      <div
+        class="bg-white p-8 w-72 flex flex-col relative justify-center items-center"
+      >
+        <q-btn
+          class="absolute top-1 right-1"
+          round
+          color="red"
+          size="10px"
+          icon="close"
+          @click="CloseForm"
+        ></q-btn>
+        <p class="ma-0 pa-0 pb-4 text-lg font-bold font-cursive text-center">
+          Add Information for {{ dform.name }}
+
+          <br />
+          <span v-if="dform.qty && dform.denoation && dform.name"
+            >{{ dform.qty }} {{ dform.denoation }} of {{ dform.name }}</span
+          >
+        </p>
+
+        <div class="w-full flex flex-col gap-2">
+          <q-input
+            dense
+            class="w-full"
+            square
+            filled
+            v-model="dform.name"
+            label="Item Name"
+          />
+          <q-input
+            dense
+            square
+            type="number"
+            filled
+            v-model="dform.qty"
+            label="Item Qty"
+          />
+          <q-input
+            dense
+            square
+            filled
+            v-model="dform.denoation"
+            label="Quantity Title..Eg cubes of maggi"
+          />
+          <q-input
+            v-model="dform.additionalInfo"
+            square
+            filled
+            type="textarea"
+            label="Additional Info"
+          />
+
+          <q-btn @click="AddItem" color="black">Submit</q-btn>
+        </div>
+      </div>
+    </q-dialog>
+
     <q-btn
       color="green"
       text-color="white"
       round
-      :icon="invoceblock ? 'cancel' : 'add_shopping_cart'"
+      :icon="invoceblock ? 'cancel' : 'ramen_dining'"
       @click="invoceblock = !invoceblock"
-      class="fixed bottom-2 right-2 cart_btn"
+      class="fixed bottom-4 right-4 cart_btn"
       ><q-badge v-if="!invoceblock" color="red" floating>{{
         orders.length
       }}</q-badge></q-btn
@@ -101,8 +153,7 @@
       <div class="w-full bg-white">
         <q-tabs v-model="tab" background-color="transparent" color="basil">
           <q-tab name="current" label="Current Invoice" />
-          <q-tab name="pending" label="Pending Invoice" />
-          <q-tab name="all" label="All Invoice" />
+          <q-tab name="Cooking" label="Cooking History" />
         </q-tabs>
 
         <q-tab-panels v-model="tab" animated>
@@ -112,7 +163,9 @@
               class="current-invoice w-full relative py-2"
               flat
             >
-              <p class="ma-0 pa-0 text-lg font-bold text-center">Ksg Invoice</p>
+              <p class="ma-0 pa-0 text-lg font-bold text-center">
+                Kitchen Basket
+              </p>
               <div
                 class="invoice_list flex w-full flex-col gap-2 justify-start items-center py-2"
               >
@@ -122,7 +175,6 @@
                   <span class="">Item</span>
                   <span class="">Qty</span>
                   <div class="flex gap-5">
-                    <span>Price</span>
                     <span>Actions</span>
                   </div>
                 </div>
@@ -150,7 +202,6 @@
                       />
                     </div>
                     <div class="flex justify-end px-1 items-center gap-5">
-                      <span>₦{{ item.price }}</span>
                       <q-btn
                         size="10px"
                         @click="Delete(i)"
@@ -173,58 +224,23 @@
               >
                 <q-btn
                   :disable="orders.length == 0"
-                  @click="PlaceOrder"
-                  :loading="loading"
+                  @click="Proceed"
+                  :loading="loadingp"
                   color="green"
                   small
-                  label="Place Order"
-                />
-                <q-btn
-                  :disable="orders.length == 0"
-                  @click="PendOrder"
-                  color="blue"
-                  :loading="loadingp"
-                  small
-                  label="Pend Order"
+                  label="Proceed"
                 />
                 <q-btn
                   :disable="orders.length < 1"
                   @click="orders = []"
                   color="red"
                   small
-                  label="Clear Order"
+                  label="Clear Basket"
                 />
               </div>
             </div>
           </q-tab-panel>
-
-          <q-tab-panel name="pending">
-            <div
-              class="current-invoice w-full px-3 my-3 relative overflow-y-scroll overflow-hidden"
-            >
-              <div
-                @click="ViewOrder(invoice)"
-                v-for="(invoice, i) in invoices.filter(
-                  (v) => v.status == 'pending'
-                )"
-                :key="i"
-                class="flex w-full justify-between items-center hover:shadow-lg cursor-pointers p-3 mb-3 shadow-sm rounded-md border-2 border-solid border-blue-400"
-              >
-                <p class="ma-0 pa-0">
-                  {{ invoice.ref }}
-                </p>
-                <span
-                  :class="{
-                    colorgreen: invoice.status == 'confirmed',
-                    colorred: invoice.status == 'pending',
-                  }"
-                  class="px-2 py-1 rounded-sm"
-                  >{{ invoice.status }}</span
-                >
-              </div>
-            </div>
-          </q-tab-panel>
-          <q-tab-panel name="all">
+          <q-tab-panel name="Cooking">
             <div
               class="w-full px-3 my-3 relative overflow-y-scroll overflow-hidden"
             >
@@ -234,17 +250,7 @@
                 :key="i"
                 class="flex w-full justify-between items-center hover:shadow-lg cursor-pointer p-3 mb-3 shadow-sm rounded-md border-2 border-solid border-blue-400"
               >
-                <p class="ma-0 pa-0">
-                  {{ invoice.ref }}
-                </p>
-                <span
-                  :class="{
-                    colorgreen: invoice.status == 'confirmed',
-                    colorred: invoice.status == 'pending',
-                  }"
-                  class="px-2 py-1 rounded-sm"
-                  >{{ invoice.status }}</span
-                >
+                <p class="ma-0 pa-0">Trf {{ invoice.docid }}</p>
               </div>
             </div>
           </q-tab-panel>
@@ -264,7 +270,9 @@ const store = useLoungeStore();
 export default {
   data: () => ({
     viewmode: false,
-    name: 'Place Order',
+    name: 'Cooking Section',
+    oderform: false,
+    dform: {},
     foodList: [],
     maximizedToggle: true,
     orderdialog: false,
@@ -305,7 +313,7 @@ export default {
         const res = await crud.getAllQueryDoc(
           'STOCKS',
           'stocktype',
-          'lounge',
+          'kitchen',
           'asc'
         );
         // const res = [];
@@ -320,181 +328,53 @@ export default {
     },
     async GetInvoices() {
       try {
-        const res = await crud.getAllDoc('INVOICES');
+        const res = await crud.getAllDoc('KITCHENORDERS');
         this.invoices = res;
       } catch (err) {
         ShowSnack(err, 'negative');
       }
     },
-    async PendOrder() {
-      this.loadingp = true;
-      let ref = 'KSG' + Math.floor(Math.random() * 129483 + 292929);
-      this.orders.ref = ref;
+
+    OpenBasketForm(item) {
+      this.oderform = true;
+      console.log(item);
+      this.dform.name = item.name;
+    },
+    AddItem() {
+      this.orders.push(this.dform);
+      ShowSnack('Item Added', 'positive');
+      this.dform = {};
+      this.oderform = false;
+    },
+    async Proceed() {
       try {
-        await crud.addDocWithId('INVOICES', ref, {
-          ref: ref,
-          orders: this.orders,
-          status: 'pending',
-          total: this.Total,
+        this.loadingp = true;
+        await crud.addDocWithoutId('KITCHENORDERS', {
+          items: this.orders,
+          addedBy: { name: this.userData.fullname, userId: this.userData.id },
         });
         this.loadingp = false;
-        ShowSnack('Invoice Pending', 'positive');
+        ShowSnack('Submitted Successfully', 'positive');
         this.orders = [];
-        this.invoceblock = false;
-        // this.GetInvoices();
-        this.GetFoods();
       } catch (err) {
-        this.loadingp = false;
-        ShowSnack(err, 'negative');
-      }
-    },
-    async PlaceOrder() {
-      this.loading = true;
-      let ref = 'KSG' + Math.floor(Math.random() * 129483 + 292929);
-      this.orders.ref = ref;
-      try {
-        await crud.addDocWithId('INVOICES', ref, {
-          ref: ref,
-          orders: this.orders,
-          status: 'confirmed',
-          total: this.Total,
-        });
-
-        this.orders.forEach(async (v) => {
-          let newqty = parseInt(v.prevQty) - v.qty;
-          await crud.updateDocument('STOCKS', v.stockid, {
-            qty: newqty,
-          });
-          await crud.addDocWithoutId('STOCKSTOPUP', {
-            name: v.name,
-            prevQty: v.prevQty,
-            qty: v.qty,
-            newQty: newqty,
-            stockid: v.stockid,
-            isTop: false,
-            addedBy: {
-              name: this.userData.fullname,
-              userId: this.userData.id,
-            },
-          });
-        });
-        this.loading = false;
-        ShowSnack('Invoice Added', 'positive');
-        this.orders = [];
-        this.invoceblock = false;
-        // this.GetInvoices();
-        this.GetFoods();
-      } catch (err) {
-        this.loading = false;
-        ShowSnack(err, 'negative');
-      }
-    },
-
-    AddItem(food) {
-      let order = {
-        qty: 1,
-        name: food.name,
-        price: parseInt(food.stockSPrice1),
-        stockid: food.docid,
-        prevQty: food.qty,
-      };
-
-      if (this.orders.length == 0) {
-        ShowSnack('Double tap to add more...', 'positive');
-        this.orders.push(order);
-        return;
-      }
-      this.orders.forEach((item, index) => {
-        if (food.name == item.name) {
-          this.orders[index].qty += 1;
-          ShowSnack(
-            `Added +${this.orders[index].qty} ${item.name}`,
-            'positive'
-          );
-          return;
-        }
-      });
-
-      let temp = this.orders.filter((item) => item.name == food.name);
-      if (temp.length == 0) {
-        this.orders.push(order);
-        return;
-      }
-    },
-    async updatedConfirm() {
-      this.loadingc = true;
-      try {
-        await crud.updateDocument('INVOICES', this.currentInvoice.ref, {
-          orders: this.orders,
-          status: 'confirmed',
-          total: this.Total,
-        });
-
-        this.orders.forEach(async (v) => {
-          let newqty = parseInt(v.prevQty) - v.qty;
-          await crud.updateDocument('STOCKS', v.stockid, {
-            qty: newqty,
-          });
-          await crud.addDocWithoutId('STOCKSTOPUP', {
-            name: v.name,
-            prevQty: v.prevQty,
-            qty: v.qty,
-            newQty: newqty,
-            stockid: v.stockid,
-            isTop: false,
-            addedBy: {
-              name: this.userData.fullname,
-              userId: this.userData.id,
-            },
-          });
-        });
-        this.loadingc = false;
-        ShowSnack('Invoice Confirmed', 'positive');
-        this.orders = [];
-        this.viewmode = false;
-        this.orderdialog = false;
-        this.currentInvoice = {};
-        this.GetInvoices();
-        this.GetFoods();
-      } catch (err) {
-        this.loadingc = false;
-        ShowSnack(err, 'negative');
-      }
-    },
-    async updatedPending() {
-      this.loadingp = true;
-      try {
-        await crud.updateDocument('INVOICES', this.currentInvoice.ref, {
-          orders: this.orders,
-          status: 'pending',
-          total: this.Total,
-        });
-
-        ShowSnack('Invoice Pending', 'positive');
-        this.orders = [];
-        this.viewmode = false;
-        this.orderdialog = false;
-        this.currentInvoice = {};
-        this.loadingp = false;
-        this.GetInvoices();
-        this.GetFoods();
-      } catch (err) {
-        ShowSnack(err, 'negative');
+        ShowSnack(err.message, 'negative');
       }
     },
     Delete(id) {
       this.orders.splice(id, 1);
     },
     ViewOrder(invoice) {
-      this.viewmode = true;
       this.orderdialog = true;
       this.currentInvoice = invoice;
-      this.orders = invoice.orders;
+      this.orders = invoice.items;
+    },
+    CloseForm() {
+      this.oderform = false;
+      this.dform = {};
     },
     CloseBtn() {
       this.orderdialog = !this.orderdialog;
       this.currentInvoice = {};
-      this.orders = [];
     },
   },
   setup() {

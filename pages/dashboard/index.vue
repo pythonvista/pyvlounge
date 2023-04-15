@@ -65,21 +65,35 @@
         <p class="ma-0 pa-0 text-black text-xl">Place Order</p>
       </div>
 
-      <div class="flex flex-col justify-center items-center gap-2">
+      <div
+        @click="$router.push({ path: '/dashboard/all-order' })"
+        class="flex flex-col justify-center items-center gap-2"
+      >
         <div
           class="user pa-3 flex justify-center items-center bg-slate-100 w-32 h-32 shadow-lg rounded-md"
         >
           <img class="" src="@/assets/img/orders.png" alt="" />
         </div>
-        <p class="ma-0 pa-0 text-black text-xl">All Orders</p>
+        <p class="ma-0 pa-0 text-black text-xl">All Transactions</p>
       </div>
-      <div class="flex flex-col justify-center items-center gap-2">
+      <div
+        @click="$router.push({ path: '/dashboard/chef-cook' })"
+        class="flex flex-col justify-center items-center gap-2"
+      >
         <div
           class="user pa-3 flex justify-center items-center bg-slate-100 w-32 h-32 shadow-lg rounded-md"
         >
           <img class="" src="@/assets/img/trans.png" alt="" />
         </div>
-        <p class="ma-0 pa-0 text-black text-xl">All Transactions</p>
+        <p class="ma-0 pa-0 text-black text-xl">Chef Cook</p>
+      </div>
+      <div class="flex flex-col justify-center items-center gap-2">
+        <div
+          class="user pa-3 flex justify-center items-center bg-slate-100 w-32 h-32 shadow-lg rounded-md"
+        >
+          <img width="100" class="" src="@/assets/img/pos.png" alt="" />
+        </div>
+        <p class="ma-0 pa-0 text-black text-xl">Pos Terminal</p>
       </div>
     </div>
     <q-dialog
