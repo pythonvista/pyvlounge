@@ -203,7 +203,7 @@
               class="current-invoice w-full px-3 my-3 relative overflow-y-scroll overflow-hidden"
             >
               <div
-                @click="ViewOrder(invoice)"
+                @click="ViewOrder(invoice, i)"
                 v-for="(invoice, i) in invoices.filter(
                   (v) => v.status == 'pending'
                 )"
@@ -229,7 +229,7 @@
               class="w-full px-3 my-3 relative overflow-y-scroll overflow-hidden"
             >
               <div
-                @click="ViewOrder(invoice)"
+                @click="ViewOrder(invoice, i)"
                 v-for="(invoice, i) in invoices"
                 :key="i"
                 class="flex w-full justify-between items-center hover:shadow-lg cursor-pointer p-3 mb-3 shadow-sm rounded-md border-2 border-solid border-blue-400"
@@ -269,11 +269,7 @@ export default {
     loadingp: false,
     invoices: [],
     currentInvoice: {},
-    printObj: {
-      id: 'printMe',
-      popTitle: 'KSG Food and Lounge',
-    },
-
+    invoiceindex: 0,
     tab: 'current',
   }),
   computed: {
@@ -292,10 +288,13 @@ export default {
     async GetFoods() {
       try {
         const res = JSON.parse(localStorage.getItem('STOCKS')) || [];
+        const res2 = JSON.parse(localStorage.getItem('INVOICES')) || [];
         // const res = [];
         if (res) {
+          this.invoices = [];
           this.foodList = [];
           this.foodList = res;
+          this.invoices = res2;
         }
       } catch (err) {
         ShowSnack(err, 'negative');
@@ -314,17 +313,18 @@ export default {
       let ref = 'KSG' + Math.floor(Math.random() * 129483 + 292929);
       this.orders.ref = ref;
       try {
-        await crud.addDocWithId('INVOICES', ref, {
+        let data = {
           ref: ref,
           orders: this.orders,
           status: 'pending',
           total: this.Total,
-        });
+        };
+        this.invoices.push(data);
+        localStorage.setItem('INVOICES', JSON.stringify(this.invoices));
         this.loadingp = false;
-        ShowSnack('Invoice Pending', 'positive');
+        ShowSnack('Invoice Pended', 'positive');
         this.orders = [];
         this.invoceblock = false;
-        // this.GetInvoices();
         this.GetFoods();
       } catch (err) {
         this.loadingp = false;
@@ -389,18 +389,13 @@ export default {
     async updatedConfirm() {
       this.loadingc = true;
       try {
-        await crud.updateDocument('INVOICES', this.currentInvoice.ref, {
-          orders: this.orders,
-          status: 'confirmed',
-          total: this.Total,
-        });
+        this.invoices[this.invoiceindex].status = 'confirmed';
+        localStorage.setItem('INVOICES', JSON.stringify(this.invoices));
         this.loadingc = false;
         ShowSnack('Invoice Confirmed', 'positive');
         this.orders = [];
-        this.viewmode = false;
+        this.invoceblock = false;
         this.orderdialog = false;
-        this.currentInvoice = {};
-        this.GetInvoices();
         this.GetFoods();
       } catch (err) {
         this.loadingc = false;
@@ -410,31 +405,27 @@ export default {
     async updatedPending() {
       this.loadingp = true;
       try {
-        await crud.updateDocument('INVOICES', this.currentInvoice.ref, {
-          orders: this.orders,
-          status: 'pending',
-          total: this.Total,
-        });
-
-        ShowSnack('Invoice Pending', 'positive');
+        this.invoices[this.invoiceindex].status = 'pending';
+        localStorage.setItem('INVOICES', JSON.stringify(this.invoices));
+        this.loading = false;
+        ShowSnack('Invoice Pended', 'positive');
         this.orders = [];
-        this.viewmode = false;
+        this.invoceblock = false;
         this.orderdialog = false;
-        this.currentInvoice = {};
-        this.loadingp = false;
-        this.GetInvoices();
-        this.GetFoods();
       } catch (err) {
+        this.loadingp = false;
         ShowSnack(err, 'negative');
       }
     },
     Delete(id) {
       this.orders.splice(id, 1);
     },
-    ViewOrder(invoice) {
+    ViewOrder(invoice, i) {
+      console.log(i);
       this.viewmode = true;
       this.orderdialog = true;
       this.currentInvoice = invoice;
+      this.invoiceindex = i;
       this.orders = invoice.orders;
     },
     CloseBtn() {
