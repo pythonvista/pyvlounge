@@ -23,6 +23,7 @@
     "@pinia/nuxt": "^0.4.8",
     "@quasar/extras": "^1.16.2",
     "firebase": "^9.19.1",
+    "moment": "^2.29.4",
     "nuxt-swiper": "^1.1.0",
     "pinia": "^2.0.34",
     "quasar": "^2.11.10",

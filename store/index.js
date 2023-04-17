@@ -8,6 +8,7 @@ export const useLoungeStore = defineStore({
       activeUser: '',
       userData: {},
       routeState: '',
+      networkMode: 'online',
     };
   },
   actions: {
@@ -18,6 +19,9 @@ export const useLoungeStore = defineStore({
       } else {
         this.activeUser = '';
       }
+    },
+    SetNetworkMode(mode) {
+      this.networkMode = mode;
     },
 
     SetRouteState(name) {

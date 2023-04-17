@@ -70,6 +70,7 @@ export default {
   created() {
     const nuxtApp = useNuxtApp();
     const auth = nuxtApp.$authfunc.UserState();
+    this.OfflineMode();
     onAuthStateChanged(auth, (user) => {
       if (user) {
         store.SetActiveUser(user.uid, true);
@@ -77,10 +78,25 @@ export default {
         this.GetUser();
       }
     });
+    window.addEventListener('online', () => {
+      ShowSnack('Internet Connected... Syncing Database', 'positive');
+      store.SetNetworkMode('online');
+      this.OfflineMode();
+      this.$router.push({ path: '/dashboard' });
+    });
+    window.addEventListener('offline', () => {
+      ShowSnack('No Internet Connection', 'negative');
+      ShowSnack('Offline Mode Activated', 'positive');
+      store.SetNetworkMode('offline');
+      this.$router.push({ path: '/pos' });
+    });
   },
   computed: {
     RouteState() {
       return store.routeState;
+    },
+    NetworkState() {
+      return store.networkMode;
     },
   },
   methods: {
@@ -92,14 +108,70 @@ export default {
         this.userData = { ...doc.data(), id: doc.id };
         store.SetUserData(this.userData);
       } catch (err) {
-        console.log('this is err:' + err.message);
-
         if ((err = 'Failed to get document because the client is offline.')) {
           ShowSnack('No Internet', 'negative');
+          store.SetNetworkMode('offline');
           this.$router.push({ path: '/' });
         }
       }
     },
+    async OfflineMode() {
+      const nuxtApp = useNuxtApp();
+      const crud = nuxtApp.$crud;
+      try {
+        if (this.NetworkState == 'online') {
+          console.log();
+          const stocks = await crud.getAllQueryDoc(
+            'STOCKS',
+            'stocktype',
+            'lounge',
+            'asc'
+          );
+          localStorage.setItem('STOCKS', JSON.stringify(stocks));
+          this.SyncInvoice();
+        } else {
+          ShowSnack('Ofline Mode!', 'positive');
+        }
+      } catch (err) {
+        console.log(err);
+        ShowSnack('Cant Sync Offline Mode', 'negative');
+      }
+    },
+    async SyncInvoice() {
+      const nuxtApp = useNuxtApp();
+      const crud = nuxtApp.$crud;
+      try {
+        let invoices = JSON.parse(localStorage.getItem('INVOICES')) || [];
+        if (invoices.length > 0) {
+          invoices.forEach(async (i) => {
+            await crud.addDocWithId('INVOICES', i.ref, i);
+            i.orders.forEach(async (v) => {
+              let newqty = parseInt(v.prevQty) - v.qty;
+              await crud.updateDocument('STOCKS', v.stockid, {
+                qty: newqty,
+              });
+              await crud.addDocWithoutId('STOCKSTOPUP', {
+                name: v.name,
+                prevQty: v.prevQty,
+                qty: v.qty,
+                newQty: newqty,
+                stockid: v.stockid,
+                isTop: false,
+                addedBy: {
+                  name: this.userData.fullname,
+                  userId: this.userData.id,
+                },
+              });
+            });
+            ShowSnack('Database Synced', 'positive');
+            localStorage.setItem('INVOICES', JSON.stringify([]));
+          });
+        }
+      } catch (err) {
+        ShowSnack('Error Occured', 'negative');
+      }
+    },
+
     async SignOut() {
       const nuxtApp = useNuxtApp();
       const authfunc = nuxtApp.$authfunc;

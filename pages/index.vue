@@ -4,7 +4,10 @@
       <img width="150" src="@/assets/img/logo_white.png" alt="" />
     </div>
 
-    <div class="grid px-5 gap-5 grid-cols-2 mt-1 place-items-center">
+    <div
+      v-if="NetWorkState == 'online'"
+      class="grid px-5 gap-5 grid-cols-2 mt-1 place-items-center"
+    >
       <div class="w-full mb-4 col-span-2">
         <p class="pa-0 ma-0 text-2xl text-white font-bold text-center">
           Who's Authencating
@@ -50,7 +53,14 @@
         <p class="ma-0 pa-0 text-white text-xl">Chef</p>
       </div>
     </div>
-
+    <div
+      @click="$router.push({ path: '/pos' })"
+      v-else
+      class="p-5 w-32 h-32 m-auto gap-3 justify-center items-center border-2 border-solid border-blue-400 bg-white rounded-md shadow-md"
+    >
+      <img width="100" src="@/assets/img/pos.png" alt="" />
+      <p class="text-black">Pos System</p>
+    </div>
     <q-dialog
       v-model="isOpen"
       :maximized="maximizedToggle"
@@ -139,6 +149,9 @@ export default {
       }
 
       return false;
+    },
+    NetWorkState() {
+      return store.networkMode;
     },
   },
   created() {

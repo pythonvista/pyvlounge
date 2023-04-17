@@ -21,7 +21,7 @@
         <div
           class="user pa-3 flex justify-center flex-col items-center bg-slate-100 w-32 h-32 shadow-lg rounded-md"
         >
-          <p class="font-bold text-sm text-black">
+          <p class="font-bold text-center text-sm text-black">
             {{ stock.name.toUpperCase() }}
           </p>
           <p class="text-sm">

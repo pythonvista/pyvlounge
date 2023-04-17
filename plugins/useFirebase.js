@@ -26,7 +26,7 @@ import {
   where,
 } from 'firebase/firestore';
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig();
   const firebaseConfig = {
     apiKey: config.FIREBASE_API_KEY,

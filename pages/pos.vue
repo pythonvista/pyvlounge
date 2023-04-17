@@ -11,7 +11,7 @@
         class="items pa-5 rounded-sm item-cover shadow hover:shadow-lg cursor-pointer flex flex-col justify-center items-center"
       >
         <p
-          class="ma-0 pa-0 text-center text-lg text-center capitalize text-blue-500 font-semibold font-serif"
+          class="ma-0 pa-0 text-lg text-center capitalize text-blue-500 font-semibold font-serif"
         >
           {{ food.name }}
         </p>
@@ -255,12 +255,6 @@
 </template>
 
 <script>
-import { useLoungeStore } from '@/store/index';
-
-let nuxtApp;
-let authfunc;
-let crud;
-const store = useLoungeStore();
 export default {
   data: () => ({
     viewmode: false,
@@ -292,40 +286,29 @@ export default {
     },
   },
   created() {
-    store.SetRouteState(this.name);
-    nuxtApp = useNuxtApp();
-    crud = nuxtApp.$crud;
-    authfunc = nuxtApp.$authfunc;
-    this.userData = store.userData;
     this.GetFoods();
   },
   methods: {
     async GetFoods() {
       try {
-        const res = await crud.getAllQueryDoc(
-          'STOCKS',
-          'stocktype',
-          'lounge',
-          'asc'
-        );
+        const res = JSON.parse(localStorage.getItem('STOCKS')) || [];
         // const res = [];
         if (res) {
           this.foodList = [];
           this.foodList = res;
         }
-        this.GetInvoices();
       } catch (err) {
         ShowSnack(err, 'negative');
       }
     },
-    async GetInvoices() {
-      try {
-        const res = await crud.getAllDoc('INVOICES');
-        this.invoices = res;
-      } catch (err) {
-        ShowSnack(err, 'negative');
-      }
-    },
+    // async GetInvoices() {
+    //   try {
+    //     const res = await crud.getAllDoc('INVOICES');
+    //     this.invoices = res;
+    //   } catch (err) {
+    //     ShowSnack(err, 'negative');
+    //   }
+    // },
     async PendOrder() {
       this.loadingp = true;
       let ref = 'KSG' + Math.floor(Math.random() * 129483 + 292929);
@@ -353,36 +336,18 @@ export default {
       let ref = 'KSG' + Math.floor(Math.random() * 129483 + 292929);
       this.orders.ref = ref;
       try {
-        await crud.addDocWithId('INVOICES', ref, {
+        let data = {
           ref: ref,
           orders: this.orders,
           status: 'confirmed',
           total: this.Total,
-        });
-
-        this.orders.forEach(async (v) => {
-          let newqty = parseInt(v.prevQty) - v.qty;
-          await crud.updateDocument('STOCKS', v.stockid, {
-            qty: newqty,
-          });
-          await crud.addDocWithoutId('STOCKSTOPUP', {
-            name: v.name,
-            prevQty: v.prevQty,
-            qty: v.qty,
-            newQty: newqty,
-            stockid: v.stockid,
-            isTop: false,
-            addedBy: {
-              name: this.userData.fullname,
-              userId: this.userData.id,
-            },
-          });
-        });
+        };
+        this.invoices.push(data);
+        localStorage.setItem('INVOICES', JSON.stringify(this.invoices));
         this.loading = false;
         ShowSnack('Invoice Added', 'positive');
         this.orders = [];
         this.invoceblock = false;
-        // this.GetInvoices();
         this.GetFoods();
       } catch (err) {
         this.loading = false;
@@ -428,25 +393,6 @@ export default {
           orders: this.orders,
           status: 'confirmed',
           total: this.Total,
-        });
-
-        this.orders.forEach(async (v) => {
-          let newqty = parseInt(v.prevQty) - v.qty;
-          await crud.updateDocument('STOCKS', v.stockid, {
-            qty: newqty,
-          });
-          await crud.addDocWithoutId('STOCKSTOPUP', {
-            name: v.name,
-            prevQty: v.prevQty,
-            qty: v.qty,
-            newQty: newqty,
-            stockid: v.stockid,
-            isTop: false,
-            addedBy: {
-              name: this.userData.fullname,
-              userId: this.userData.id,
-            },
-          });
         });
         this.loadingc = false;
         ShowSnack('Invoice Confirmed', 'positive');
@@ -497,11 +443,7 @@ export default {
       this.orders = [];
     },
   },
-  setup() {
-    definePageMeta({
-      layout: 'dashboard',
-    });
-  },
+  setup() {},
 };
 </script>
 
