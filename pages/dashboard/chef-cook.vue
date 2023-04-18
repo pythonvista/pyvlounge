@@ -29,7 +29,7 @@
     <q-dialog v-model="orderdialog" persistent max-width="400px">
       <div class="bg-white p-4 flex flex-col justify-center items-center">
         <p class="ma-0 pa-0 text-lg font-bold font-cursive text-center">
-          KSG Food and Lounge
+          TSG Food and Lounge
         </p>
         <div id="printMe" class="w-full">
           <p>This was prepared by {{ currentInvoice.addedBy.name }}</p>
@@ -285,7 +285,7 @@ export default {
     currentInvoice: {},
     printObj: {
       id: 'printMe',
-      popTitle: 'KSG Food and Lounge',
+      popTitle: 'TSG Food and Lounge',
     },
 
     tab: 'current',

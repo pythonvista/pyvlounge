@@ -29,7 +29,7 @@
     <q-dialog v-model="orderdialog" persistent max-width="400px">
       <div class="bg-white p-4 flex flex-col justify-center items-center">
         <p class="ma-0 pa-0 text-lg font-bold font-cursive text-center">
-          KSG Food and Lounge
+          TSG Food and Lounge
         </p>
         <div id="printMe" class="w-full">
           <table>
@@ -112,7 +112,7 @@
               class="current-invoice w-full relative py-2"
               flat
             >
-              <p class="ma-0 pa-0 text-lg font-bold text-center">Ksg Invoice</p>
+              <p class="ma-0 pa-0 text-lg font-bold text-center">TSG Invoice</p>
               <div
                 class="invoice_list flex w-full flex-col gap-2 justify-start items-center py-2"
               >
@@ -310,7 +310,7 @@ export default {
     // },
     async PendOrder() {
       this.loadingp = true;
-      let ref = 'KSG' + Math.floor(Math.random() * 129483 + 292929);
+      let ref = 'TSG' + Math.floor(Math.random() * 129483 + 292929);
       this.orders.ref = ref;
       try {
         let data = {
@@ -333,7 +333,7 @@ export default {
     },
     async PlaceOrder() {
       this.loading = true;
-      let ref = 'KSG' + Math.floor(Math.random() * 129483 + 292929);
+      let ref = 'TSG' + Math.floor(Math.random() * 129483 + 292929);
       this.orders.ref = ref;
       try {
         let data = {

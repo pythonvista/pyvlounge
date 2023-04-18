@@ -24,7 +24,7 @@
     <q-dialog v-model="orderdialog" full-width>
       <div class="bg-white p-7 flex flex-col justify-center items-center">
         <p class="ma-0 pa-0 py-4 text-lg font-bold font-cursive text-center">
-          KSG Food and Lounge
+          TSG Food and Lounge
         </p>
         <div class="w-full">
           <table class="w-full">
