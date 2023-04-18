@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "tsg-app",
   "private": true,
   "scripts": {
     "build": "nuxt build",
@@ -11,7 +11,6 @@
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.6.5",
-    "@vite-pwa/nuxt": "^0.0.7",
     "nuxt": "^3.3.3",
     "nuxt-quasar-ui": "^1.6.0",
     "nuxt-security": "^0.13.0"

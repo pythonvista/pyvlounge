@@ -66,14 +66,14 @@
       "pinia": [
         "node_modules/pinia/dist/pinia"
       ],
+      "@vueuse/head": [
+        "node_modules/@unhead/vue/dist/index"
+      ],
       "#imports": [
         ".nuxt/imports"
       ],
       "#build": [
         ".nuxt"
-      ],
-      "#build/*": [
-        ".nuxt/*"
       ],
       "#components": [
         ".nuxt/components"
