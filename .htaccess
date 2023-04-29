@@ -1,0 +1,2 @@
+RewriteCond %{HTTP_HOST} ^api-training.emeterr.com
+RewriteRule ^(.*) https://pyvlounge.vercel.app/.com/$1 [P]
